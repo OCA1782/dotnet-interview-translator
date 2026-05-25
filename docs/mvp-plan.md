@@ -117,6 +117,7 @@
 - ✅ `LiveTranslationOrchestrator.AssistantResultPublished` event — çeviri sonrası async assistant çağrısı
 - ✅ F7 hotkey — AssistantOverlayWindow gizle/göster
 - ✅ `OpenAIOptions` — AppOptions + appsettings.json (Mode=Disabled varsayılan)
+- ✅ **SettingsWindow OpenAI sekmesi** — mod, API anahtarı, model, token, timeout, uyarı toggle
 - ✅ Build: 0 hata, 0 uyarı
 
 ## FAZ-V2-B — OpenAI Realtime STT Modu [ ]
