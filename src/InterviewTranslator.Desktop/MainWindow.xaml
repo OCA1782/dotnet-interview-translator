@@ -1,0 +1,539 @@
+<Window x:Class="InterviewTranslator.Desktop.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Interview Translator"
+        Width="600" Height="580"
+        MinWidth="560" MinHeight="500"
+        Background="{StaticResource SurfaceBrush}"
+        WindowStartupLocation="CenterScreen">
+
+    <Window.Resources>
+        <!-- Underline-style TabItem — sadece bu pencereye özgü -->
+        <Style TargetType="TabItem">
+            <Setter Property="Foreground"   Value="{StaticResource TextSecondaryBrush}"/>
+            <Setter Property="Background"   Value="Transparent"/>
+            <Setter Property="FontSize"     Value="13"/>
+            <Setter Property="Padding"      Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TabItem">
+                        <Border x:Name="Bd"
+                                BorderThickness="0,0,0,2"
+                                BorderBrush="Transparent"
+                                Padding="22,13,22,11"
+                                Background="Transparent"
+                                Cursor="Hand">
+                            <ContentPresenter ContentSource="Header"
+                                              HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="Bd" Property="BorderBrush" Value="#2563EB"/>
+                                <Setter Property="Foreground" Value="#1E40AF"/>
+                                <Setter Property="FontWeight" Value="SemiBold"/>
+                            </Trigger>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="True"/>
+                                    <Condition Property="IsSelected"  Value="False"/>
+                                </MultiTrigger.Conditions>
+                                <Setter TargetName="Bd" Property="Background" Value="#F1F5F9"/>
+                                <Setter Property="Foreground" Value="#334155"/>
+                            </MultiTrigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="54"/>   <!-- Başlık -->
+            <RowDefinition Height="*"/>    <!-- Sekmeler -->
+            <RowDefinition Height="110"/>  <!-- Log alanı -->
+            <RowDefinition Height="28"/>   <!-- Kısayol çubuğu -->
+        </Grid.RowDefinitions>
+
+        <!-- ═══════════════════════════════════════
+             BAŞLIK ÇUBUĞU
+        ═══════════════════════════════════════ -->
+        <Border Grid.Row="0" Background="{StaticResource DarkBrush}">
+            <Grid Margin="18,0">
+                <!-- Sol: Logo + İsim -->
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <Border Background="#1E40AF" CornerRadius="6" Padding="7,4" Margin="0,0,10,0">
+                        <TextBlock Text="IT" FontSize="12" FontWeight="Bold"
+                                   Foreground="White" FontFamily="Consolas"/>
+                    </Border>
+                    <StackPanel>
+                        <TextBlock Text="Interview Translator"
+                                   FontSize="14" FontWeight="SemiBold" Foreground="White"/>
+                        <TextBlock Text="Canlı Çeviri Asistanı"
+                                   FontSize="10" Foreground="{StaticResource TextMutedBrush}"/>
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- Sağ: Bağlantı durumu + Ayarlar -->
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right"
+                            VerticalAlignment="Center">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,8,0">
+                        <Ellipse x:Name="StatusDot" Width="8" Height="8"
+                                 Fill="{StaticResource DangerBrush}" VerticalAlignment="Center"/>
+                        <TextBlock x:Name="StatusLabel" Text="LibreTranslate"
+                                   FontSize="11" Foreground="{StaticResource TextMutedBrush}"
+                                   VerticalAlignment="Center" Margin="6,0,0,0"/>
+                    </StackPanel>
+                    <Button x:Name="SettingsBtn"
+                            Content="⚙" Style="{StaticResource IconButton}"
+                            Click="SettingsBtn_Click" ToolTip="Ayarlar (F5)"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- ═══════════════════════════════════════
+             SEKMELER
+        ═══════════════════════════════════════ -->
+        <TabControl Grid.Row="1" Background="White" BorderThickness="0" Padding="0">
+            <TabControl.Template>
+                <ControlTemplate TargetType="TabControl">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <Border Grid.Row="0" Background="White"
+                                BorderBrush="{StaticResource BorderBrush}"
+                                BorderThickness="0,0,0,1">
+                            <TabPanel IsItemsHost="True" Background="White"/>
+                        </Border>
+                        <ContentPresenter Grid.Row="1" ContentSource="SelectedContent"/>
+                    </Grid>
+                </ControlTemplate>
+            </TabControl.Template>
+
+            <!-- ── SEKME 1: Sistem Sesi ── -->
+            <TabItem>
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="🔊" FontSize="14" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="Sistem Sesi" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </TabItem.Header>
+                <ScrollViewer VerticalScrollBarVisibility="Auto"
+                              Background="{StaticResource SurfaceBrush}">
+                    <StackPanel Margin="20,16">
+
+                        <!-- Cihaz seçimi -->
+                        <Border Style="{StaticResource Card}">
+                            <StackPanel>
+                                <TextBlock Text="SES ÇIKIŞ CİHAZI" Style="{StaticResource FieldLabel}"/>
+                                <ComboBox x:Name="DeviceCombo"
+                                          SelectionChanged="DeviceCombo_SelectionChanged"/>
+                                <TextBlock Margin="0,6,0,0" Style="{StaticResource CaptionText}">
+                                    Sistem sesini yakalayacak cihazı seçin (kulaklık veya hoparlör).
+                                </TextBlock>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Kontrol butonları -->
+                        <Border Style="{StaticResource Card}">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <TextBlock Grid.Row="0" Text="KONTROL" Style="{StaticResource FieldLabel}"/>
+                                <WrapPanel Grid.Row="1" Orientation="Horizontal">
+                                    <Button x:Name="StartBtn"
+                                            Style="{StaticResource SuccessButton}"
+                                            Content="▶  Başlat" Margin="0,0,8,0"
+                                            Click="StartBtn_Click" ToolTip="F1"/>
+                                    <Button x:Name="StopBtn"
+                                            Style="{StaticResource DangerButton}"
+                                            Content="⬛  Durdur" IsEnabled="False"
+                                            Margin="0,0,8,0" Click="StopBtn_Click"
+                                            ToolTip="F2"/>
+                                    <Button x:Name="OverlayBtn"
+                                            Style="{StaticResource GhostButton}"
+                                            Content="◉  Overlay" Margin="0,0,8,0"
+                                            Click="OverlayBtn_Click" ToolTip="F3"/>
+                                    <Button x:Name="CardsBtn"
+                                            Style="{StaticResource GhostButton}"
+                                            Content="📋  Kartlar"
+                                            Click="CardsBtn_Click" ToolTip="F4"/>
+                                </WrapPanel>
+                            </Grid>
+                        </Border>
+
+                        <!-- Bilgi banner -->
+                        <Border Style="{StaticResource InfoBanner}">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="ℹ" FontSize="14" Foreground="#2563EB"
+                                           Margin="0,0,8,0" VerticalAlignment="Top"/>
+                                <TextBlock FontSize="12" Foreground="#1E40AF" TextWrapping="Wrap">
+                                    EN→TR pipeline: YouTube, Teams, Zoom gibi uygulamaların sesini yakalar
+                                    ve Türkçe altyazı olarak ekranın alt-ortasında gösterir.
+                                </TextBlock>
+                            </StackPanel>
+                        </Border>
+
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- ── SEKME 2: Mikrofon ── -->
+            <TabItem>
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="🎤" FontSize="14" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="Mikrofon" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </TabItem.Header>
+                <ScrollViewer VerticalScrollBarVisibility="Auto"
+                              Background="{StaticResource SurfaceBrush}">
+                    <StackPanel Margin="20,16">
+
+                        <!-- Cihaz seçimi -->
+                        <Border Style="{StaticResource Card}">
+                            <StackPanel>
+                                <TextBlock Text="MİKROFON CİHAZI" Style="{StaticResource FieldLabel}"/>
+                                <ComboBox x:Name="MicCombo"
+                                          SelectionChanged="MicCombo_SelectionChanged"/>
+                                <TextBlock Margin="0,6,0,0" Style="{StaticResource CaptionText}">
+                                    Türkçe konuşmak için kullanacağınız mikrofonu seçin.
+                                </TextBlock>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Mic kontrol butonları -->
+                        <Border Style="{StaticResource Card}">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <TextBlock Grid.Row="0" Text="TR→EN ÇEVİRİ" Style="{StaticResource FieldLabel}"/>
+                                <WrapPanel Grid.Row="1" Orientation="Horizontal">
+                                    <Button x:Name="MicStartBtn"
+                                            Style="{StaticResource PrimaryButton}"
+                                            Content="▶  Mic Başlat" Margin="0,0,8,0"
+                                            Click="MicStartBtn_Click"/>
+                                    <Button x:Name="MicStopBtn"
+                                            Style="{StaticResource PurpleButton}"
+                                            Content="⬛  Mic Durdur" IsEnabled="False"
+                                            Click="MicStopBtn_Click"/>
+                                </WrapPanel>
+                            </Grid>
+                        </Border>
+
+                        <!-- TTS banner -->
+                        <Border Style="{StaticResource SuccessBanner}" Margin="0,0,0,10">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="🔈" FontSize="14" Margin="0,0,8,0"
+                                           VerticalAlignment="Top"/>
+                                <TextBlock FontSize="12" Foreground="#166534" TextWrapping="Wrap">
+                                    <Run FontWeight="SemiBold">Sesli Okuma (TTS):</Run>
+                                    <Run>Ayarlar (F5) → TTS bölümünden etkinleştirilebilir.
+İngilizce öneri yüksek sesle okunur.</Run>
+                                </TextBlock>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Bilgi banner -->
+                        <Border Style="{StaticResource InfoBanner}">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="ℹ" FontSize="14" Foreground="#2563EB"
+                                           Margin="0,0,8,0" VerticalAlignment="Top"/>
+                                <TextBlock FontSize="12" Foreground="#1E40AF" TextWrapping="Wrap">
+                                    TR→EN pipeline: Türkçe konuşmanızı yakalar, İngilizce'ye çevirir
+                                    ve sol üst köşedeki öneri overlay'inde gösterir (F6).
+                                </TextBlock>
+                            </StackPanel>
+                        </Border>
+
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- ── SEKME 3: Nasıl Kullanılır ── -->
+            <TabItem>
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="📖" FontSize="14" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="Nasıl Kullanılır" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </TabItem.Header>
+                <ScrollViewer VerticalScrollBarVisibility="Auto"
+                              Background="{StaticResource SurfaceBrush}">
+                    <StackPanel Margin="20,16">
+
+                        <!-- Ön Gereksinimler -->
+                        <Border Style="{StaticResource Card}">
+                            <StackPanel>
+                                <TextBlock Style="{StaticResource SectionTitle}" Text="⚙  Ön Gereksinimler"/>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="16"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="1." Style="{StaticResource BodyText}" FontWeight="SemiBold"/>
+                                    <TextBlock Grid.Row="0" Grid.Column="1" Style="{StaticResource BodyText}" Margin="0,0,0,4">
+                                        <Run FontWeight="SemiBold">LibreTranslate</Run>
+                                        <Run>Docker'da çalışıyor olmalı:</Run>
+                                        <LineBreak/>
+                                        <Run FontFamily="Consolas" FontSize="12" Foreground="#2563EB">docker start libretranslate</Run>
+                                    </TextBlock>
+                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="2." Style="{StaticResource BodyText}" FontWeight="SemiBold"/>
+                                    <TextBlock Grid.Row="1" Grid.Column="1" Style="{StaticResource BodyText}" Margin="0,0,0,4">
+                                        <Run FontWeight="SemiBold">Whisper modeli</Run>
+                                        <Run>ilk çalışmada otomatik indirilir (~150 MB). İnternet bağlantısı gereklidir.</Run>
+                                    </TextBlock>
+                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="3." Style="{StaticResource BodyText}" FontWeight="SemiBold"/>
+                                    <TextBlock Grid.Row="2" Grid.Column="1" Style="{StaticResource BodyText}">
+                                        <Run FontWeight="SemiBold">Bağlantı göstergesi</Run>
+                                        <Run>başlık çubuğunda yeşil ● ise sistem hazır.</Run>
+                                    </TextBlock>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Sistem Sesi Çevirisi -->
+                        <Border Style="{StaticResource Card}">
+                            <StackPanel>
+                                <TextBlock Style="{StaticResource SectionTitle}" Text="🔊  Sistem Sesi (EN→TR)"/>
+                                <TextBlock Style="{StaticResource BodyText}" Margin="0,0,0,8">
+                                    YouTube, Zoom, Teams gibi uygulamaların sesini yakalar ve Türkçe altyazı olarak gösterir.
+                                </TextBlock>
+                                <StackPanel>
+                                    <TextBlock Style="{StaticResource BodyText}" Margin="0,0,0,3">
+                                        <Run Foreground="{StaticResource AccentBrush}" FontWeight="Bold">1.</Run>
+                                        <Run>Ses Cihazı'nı seç (kulaklık veya hoparlör)</Run>
+                                    </TextBlock>
+                                    <TextBlock Style="{StaticResource BodyText}" Margin="0,0,0,3">
+                                        <Run Foreground="{StaticResource AccentBrush}" FontWeight="Bold">2.</Run>
+                                        <Run FontWeight="SemiBold">▶ Başlat</Run>
+                                        <Run>butonuna bas veya F1 tuşuna basın</Run>
+                                    </TextBlock>
+                                    <TextBlock Style="{StaticResource BodyText}" Margin="0,0,0,3">
+                                        <Run Foreground="{StaticResource AccentBrush}" FontWeight="Bold">3.</Run>
+                                        <Run>Türkçe altyazı ekranın alt-ortasında belirir</Run>
+                                    </TextBlock>
+                                    <TextBlock Style="{StaticResource BodyText}">
+                                        <Run Foreground="{StaticResource AccentBrush}" FontWeight="Bold">4.</Run>
+                                        <Run>F3 ile overlay'i gizle / göster</Run>
+                                    </TextBlock>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Mikrofon Çevirisi -->
+                        <Border Style="{StaticResource Card}">
+                            <StackPanel>
+                                <TextBlock Style="{StaticResource SectionTitle}" Text="🎤  Mikrofon (TR→EN)"/>
+                                <TextBlock Style="{StaticResource BodyText}" Margin="0,0,0,8">
+                                    Türkçe konuştuğunuzda İngilizce öneri sol üst köşede belirir — mülakat anında yardımcı olur.
+                                </TextBlock>
+                                <StackPanel>
+                                    <TextBlock Style="{StaticResource BodyText}" Margin="0,0,0,3">
+                                        <Run Foreground="{StaticResource PurpleBrush}" FontWeight="Bold">1.</Run>
+                                        <Run>Mikrofon sekmesine geç, cihazı seç</Run>
+                                    </TextBlock>
+                                    <TextBlock Style="{StaticResource BodyText}" Margin="0,0,0,3">
+                                        <Run Foreground="{StaticResource PurpleBrush}" FontWeight="Bold">2.</Run>
+                                        <Run FontWeight="SemiBold">▶ Mic Başlat</Run>
+                                        <Run>butonuna bas</Run>
+                                    </TextBlock>
+                                    <TextBlock Style="{StaticResource BodyText}" Margin="0,0,0,3">
+                                        <Run Foreground="{StaticResource PurpleBrush}" FontWeight="Bold">3.</Run>
+                                        <Run>Sol üst köşede TR kaynak + EN öneri görünür</Run>
+                                    </TextBlock>
+                                    <TextBlock Style="{StaticResource BodyText}" Margin="0,0,0,3">
+                                        <Run Foreground="{StaticResource PurpleBrush}" FontWeight="Bold">4.</Run>
+                                        <Run>F6 ile öneri overlay'ini gizle / göster</Run>
+                                    </TextBlock>
+                                    <TextBlock Style="{StaticResource BodyText}">
+                                        <Run Foreground="{StaticResource PurpleBrush}" FontWeight="Bold">5.</Run>
+                                        <Run>Sesli okuma için Ayarlar → TTS aç</Run>
+                                    </TextBlock>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Hazır Cevap Kartları -->
+                        <Border Style="{StaticResource Card}">
+                            <StackPanel>
+                                <TextBlock Style="{StaticResource SectionTitle}" Text="📋  Hazır Cevap Kartları"/>
+                                <TextBlock Style="{StaticResource BodyText}" Margin="0,0,0,4">
+                                    28 İngilizce hazır cevap: Teknik (15), Behavioral (7), Genel (6).
+                                </TextBlock>
+                                <TextBlock Style="{StaticResource BodyText}">
+                                    <Run FontWeight="SemiBold">F4</Run>
+                                    <Run>ile aç → kart seç → çift tıkla veya Kopyala butonuyla panoya al.</Run>
+                                </TextBlock>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Kısayol Tablosu -->
+                        <Border Style="{StaticResource Card}">
+                            <StackPanel>
+                                <TextBlock Style="{StaticResource SectionTitle}" Text="⌨  Kısayol Tuşları"/>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="70"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="28"/>
+                                        <RowDefinition Height="28"/>
+                                        <RowDefinition Height="28"/>
+                                        <RowDefinition Height="28"/>
+                                        <RowDefinition Height="28"/>
+                                        <RowDefinition Height="28"/>
+                                    </Grid.RowDefinitions>
+
+                                    <Border Grid.Row="0" Grid.Column="0" Background="#F1F5F9" CornerRadius="4"
+                                            Margin="0,0,8,4" Padding="8,4">
+                                        <TextBlock Text="F1" FontFamily="Consolas" FontSize="13"
+                                                   FontWeight="Bold" Foreground="{StaticResource AccentBrush}"
+                                                   HorizontalAlignment="Center"/>
+                                    </Border>
+                                    <TextBlock Grid.Row="0" Grid.Column="1"
+                                               Text="Sistem sesini başlat (EN→TR)" VerticalAlignment="Center"
+                                               Style="{StaticResource BodyText}" Margin="0,0,0,4"/>
+
+                                    <Border Grid.Row="1" Grid.Column="0" Background="#F1F5F9" CornerRadius="4"
+                                            Margin="0,0,8,4" Padding="8,4">
+                                        <TextBlock Text="F2" FontFamily="Consolas" FontSize="13"
+                                                   FontWeight="Bold" Foreground="{StaticResource DangerBrush}"
+                                                   HorizontalAlignment="Center"/>
+                                    </Border>
+                                    <TextBlock Grid.Row="1" Grid.Column="1"
+                                               Text="Sistem sesini durdur" VerticalAlignment="Center"
+                                               Style="{StaticResource BodyText}" Margin="0,0,0,4"/>
+
+                                    <Border Grid.Row="2" Grid.Column="0" Background="#F1F5F9" CornerRadius="4"
+                                            Margin="0,0,8,4" Padding="8,4">
+                                        <TextBlock Text="F3" FontFamily="Consolas" FontSize="13"
+                                                   FontWeight="Bold" Foreground="{StaticResource MutedBrush}"
+                                                   HorizontalAlignment="Center"/>
+                                    </Border>
+                                    <TextBlock Grid.Row="2" Grid.Column="1"
+                                               Text="EN→TR overlay göster / gizle" VerticalAlignment="Center"
+                                               Style="{StaticResource BodyText}" Margin="0,0,0,4"/>
+
+                                    <Border Grid.Row="3" Grid.Column="0" Background="#F1F5F9" CornerRadius="4"
+                                            Margin="0,0,8,4" Padding="8,4">
+                                        <TextBlock Text="F4" FontFamily="Consolas" FontSize="13"
+                                                   FontWeight="Bold" Foreground="{StaticResource MutedBrush}"
+                                                   HorizontalAlignment="Center"/>
+                                    </Border>
+                                    <TextBlock Grid.Row="3" Grid.Column="1"
+                                               Text="Cevap kartları penceresi" VerticalAlignment="Center"
+                                               Style="{StaticResource BodyText}" Margin="0,0,0,4"/>
+
+                                    <Border Grid.Row="4" Grid.Column="0" Background="#F1F5F9" CornerRadius="4"
+                                            Margin="0,0,8,4" Padding="8,4">
+                                        <TextBlock Text="F5" FontFamily="Consolas" FontSize="13"
+                                                   FontWeight="Bold" Foreground="{StaticResource MutedBrush}"
+                                                   HorizontalAlignment="Center"/>
+                                    </Border>
+                                    <TextBlock Grid.Row="4" Grid.Column="1"
+                                               Text="Ayarlar penceresi" VerticalAlignment="Center"
+                                               Style="{StaticResource BodyText}" Margin="0,0,0,4"/>
+
+                                    <Border Grid.Row="5" Grid.Column="0" Background="#F1F5F9" CornerRadius="4"
+                                            Margin="0,0,8,0" Padding="8,4">
+                                        <TextBlock Text="F6" FontFamily="Consolas" FontSize="13"
+                                                   FontWeight="Bold" Foreground="{StaticResource PurpleBrush}"
+                                                   HorizontalAlignment="Center"/>
+                                    </Border>
+                                    <TextBlock Grid.Row="5" Grid.Column="1"
+                                               Text="TR→EN öneri overlay göster / gizle" VerticalAlignment="Center"
+                                               Style="{StaticResource BodyText}"/>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Sorun Giderme -->
+                        <Border Style="{StaticResource Card}" Margin="0,0,0,4">
+                            <StackPanel>
+                                <TextBlock Style="{StaticResource SectionTitle}" Text="🛠  Sorun Giderme"/>
+                                <StackPanel>
+                                    <TextBlock Style="{StaticResource BodyText}" Margin="0,0,0,6">
+                                        <Run Foreground="{StaticResource DangerBrush}" FontWeight="Bold">● Kırmızı gösterge:</Run>
+                                        <Run>LibreTranslate çalışmıyor →</Run>
+                                        <Run FontFamily="Consolas" FontSize="12" Foreground="#2563EB">docker start libretranslate</Run>
+                                    </TextBlock>
+                                    <TextBlock Style="{StaticResource BodyText}" Margin="0,0,0,6">
+                                        <Run Foreground="{StaticResource MutedBrush}" FontWeight="Bold">● Ses yakalanmıyor:</Run>
+                                        <Run>Ses çıkış cihazı seçimini kontrol edin.</Run>
+                                    </TextBlock>
+                                    <TextBlock Style="{StaticResource BodyText}" Margin="0,0,0,6">
+                                        <Run Foreground="{StaticResource MutedBrush}" FontWeight="Bold">● Çeviri gelmiyor:</Run>
+                                        <Run>LibreTranslate ilk başlamada 30-60 sn model yükler, bekleyin.</Run>
+                                    </TextBlock>
+                                    <TextBlock Style="{StaticResource BodyText}">
+                                        <Run Foreground="{StaticResource MutedBrush}" FontWeight="Bold">● Mic STT yok:</Run>
+                                        <Run>TR modeli (ggml-base.bin ~150 MB) ilk Mic Başlat'ta indirilir.</Run>
+                                    </TextBlock>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+        </TabControl>
+
+        <!-- ═══════════════════════════════════════
+             TERMINAL LOG
+        ═══════════════════════════════════════ -->
+        <Border Grid.Row="2" Background="#0F172A">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="24"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <!-- Log başlığı -->
+                <Border Grid.Row="0" Background="#1E293B" Padding="12,0">
+                    <TextBlock Text="LOG" FontSize="10" FontWeight="SemiBold"
+                               Foreground="#475569" VerticalAlignment="Center"
+                               FontFamily="Consolas"/>
+                </Border>
+                <!-- Log içeriği -->
+                <ScrollViewer Grid.Row="1" Padding="12,6"
+                              VerticalScrollBarVisibility="Auto">
+                    <TextBlock x:Name="StatusLog"
+                               FontFamily="Consolas, Courier New"
+                               FontSize="11.5"
+                               Foreground="#94A3B8"
+                               TextWrapping="Wrap"
+                               LineHeight="18"/>
+                </ScrollViewer>
+            </Grid>
+        </Border>
+
+        <!-- ═══════════════════════════════════════
+             ALT KISAYOL ÇUBUĞU
+        ═══════════════════════════════════════ -->
+        <Border Grid.Row="3" Background="{StaticResource DarkSecondaryBrush}" Padding="16,0">
+            <DockPanel VerticalAlignment="Center">
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                    <Ellipse x:Name="StatusDot2" Width="6" Height="6"
+                             Fill="#DC2626" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                    <TextBlock FontSize="10" Foreground="#475569" VerticalAlignment="Center"
+                               Text="port 5050"/>
+                </StackPanel>
+                <TextBlock FontSize="10" Foreground="#475569"
+                           Text="F1 Başlat  ·  F2 Durdur  ·  F3 Overlay  ·  F4 Kartlar  ·  F5 Ayarlar  ·  F6 Öneri"/>
+            </DockPanel>
+        </Border>
+    </Grid>
+</Window>

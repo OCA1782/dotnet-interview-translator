@@ -1,0 +1,406 @@
+<Window x:Class="InterviewTranslator.Desktop.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Yapılandırma — Interview Translator"
+        Width="640" Height="700"
+        MinWidth="600" MinHeight="600"
+        ResizeMode="CanResizeWithGrip"
+        WindowStartupLocation="CenterOwner"
+        ShowInTaskbar="False"
+        Background="#F1F5F9">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="48"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="50"/>
+        </Grid.RowDefinitions>
+
+        <!-- Başlık -->
+        <Border Grid.Row="0" Background="#1E293B">
+            <TextBlock Text="⚙  Yapılandırma" Foreground="White"
+                       FontSize="14" FontWeight="SemiBold"
+                       VerticalAlignment="Center" Margin="18,0"/>
+        </Border>
+
+        <!-- İçerik -->
+        <TabControl Grid.Row="1" Margin="10,8,10,4"
+                    Background="White" BorderThickness="1"
+                    BorderBrush="#CBD5E1">
+
+            <!-- ───── TAB 1: Görünüm ───── -->
+            <TabItem Header="🎨 Görünüm">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="16,12">
+
+                        <TextBlock Text="Overlay Font ve Şeffaflık" FontWeight="Bold"
+                                   FontSize="13" Foreground="#1E293B" Margin="0,0,0,12"/>
+
+                        <Grid Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="170"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="55"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Font Boyutu" VerticalAlignment="Center"/>
+                            <Slider Grid.Column="1" x:Name="FontSizeSlider"
+                                    Minimum="12" Maximum="36" TickFrequency="1"
+                                    IsSnapToTickEnabled="True" VerticalAlignment="Center"
+                                    ValueChanged="FontSizeSlider_ValueChanged"/>
+                            <TextBlock Grid.Column="2" x:Name="FontSizeLabel"
+                                       VerticalAlignment="Center" TextAlignment="Center"
+                                       Foreground="#2563EB" FontWeight="SemiBold"/>
+                        </Grid>
+
+                        <Grid Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="170"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="55"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Opaklık" VerticalAlignment="Center"/>
+                            <Slider Grid.Column="1" x:Name="OpacitySlider"
+                                    Minimum="0.3" Maximum="1.0" TickFrequency="0.05"
+                                    IsSnapToTickEnabled="True" VerticalAlignment="Center"
+                                    ValueChanged="OpacitySlider_ValueChanged"/>
+                            <TextBlock Grid.Column="2" x:Name="OpacityLabel"
+                                       VerticalAlignment="Center" TextAlignment="Center"
+                                       Foreground="#2563EB" FontWeight="SemiBold"/>
+                        </Grid>
+
+                        <CheckBox x:Name="ShowEnglishCheck" Margin="0,0,0,6"
+                                  Content="İngilizce orijinal metni göster"/>
+                        <CheckBox x:Name="CompactModeCheck" Margin="0,0,0,12"
+                                  Content="Kompakt mod (yalnızca son satır)"/>
+
+                        <Button Content="Overlay Pozisyonunu Sıfırla" Padding="12,5"
+                                HorizontalAlignment="Left" Click="ResetPositionBtn_Click"/>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- ───── TAB 2: Ses ───── -->
+            <TabItem Header="🔊 Ses">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="16,12">
+
+                        <TextBlock Text="Loopback Ses Kazancı" FontWeight="Bold"
+                                   FontSize="13" Foreground="#1E293B" Margin="0,0,0,4"/>
+                        <TextBlock Foreground="#64748B" FontSize="11" Margin="0,0,0,10"
+                                   Text="Anında geçerli. Sistem sesi çok sessizse artırın."/>
+
+                        <Grid Margin="0,0,0,16">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="170"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="55"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Kazanç (1x–10x)" VerticalAlignment="Center"/>
+                            <Slider Grid.Column="1" x:Name="GainSlider"
+                                    Minimum="1.0" Maximum="10.0" TickFrequency="0.5"
+                                    IsSnapToTickEnabled="True" VerticalAlignment="Center"
+                                    ValueChanged="GainSlider_ValueChanged"/>
+                            <TextBlock Grid.Column="2" x:Name="GainLabel"
+                                       VerticalAlignment="Center" TextAlignment="Center"
+                                       Foreground="#2563EB" FontWeight="SemiBold"/>
+                        </Grid>
+
+                        <Separator Margin="0,0,0,12"/>
+                        <TextBlock Text="Resampler Kalitesi" FontWeight="Bold"
+                                   FontSize="13" Foreground="#1E293B" Margin="0,0,0,4"/>
+                        <TextBlock Foreground="#64748B" FontSize="11" Margin="0,0,0,8"
+                                   Text="Değişiklik bir sonraki Başlat'ta geçerli olur."/>
+                        <ComboBox x:Name="ResamplerQualityCombo" Width="280"
+                                  HorizontalAlignment="Left">
+                            <ComboBoxItem Tag="1"  Content="Hızlı (1) — düşük gecikme, önerilen"/>
+                            <ComboBoxItem Tag="30" Content="Dengeli (30)"/>
+                            <ComboBoxItem Tag="60" Content="Kaliteli (60) — yüksek gecikme"/>
+                        </ComboBox>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- ───── TAB 3: VAD ───── -->
+            <TabItem Header="🎙 VAD">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="16,12">
+
+                        <Border Background="#FFF7ED" BorderBrush="#FED7AA"
+                                BorderThickness="1" CornerRadius="4"
+                                Padding="10,7" Margin="0,0,0,14">
+                            <TextBlock FontSize="12" Foreground="#92400E" TextWrapping="Wrap">
+                                <Run FontWeight="Bold">VAD = Konuşma Algılama.</Run>
+                                <Run>Tüm değişiklikler anında geçerli.</Run>
+                            </TextBlock>
+                        </Border>
+
+                        <!-- Enerji eşiği -->
+                        <Grid Margin="0,0,0,6">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="190"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="55"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Enerji Eşiği" VerticalAlignment="Center"/>
+                            <Slider Grid.Column="1" x:Name="EnergySlider"
+                                    Minimum="0.001" Maximum="0.020" TickFrequency="0.001"
+                                    IsSnapToTickEnabled="True" VerticalAlignment="Center"
+                                    ValueChanged="EnergySlider_ValueChanged"/>
+                            <TextBlock Grid.Column="2" x:Name="EnergyLabel"
+                                       VerticalAlignment="Center" TextAlignment="Center"
+                                       Foreground="#2563EB" FontWeight="SemiBold"/>
+                        </Grid>
+                        <TextBlock Foreground="#64748B" FontSize="11" Margin="0,0,0,14"
+                                   Text="Düşük=hassas, Yüksek=sadece net konuşma. Varsayılan: 0.003"/>
+
+                        <!-- Sessizlik süresi -->
+                        <Grid Margin="0,0,0,6">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="190"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="55"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Sessizlik Süresi" VerticalAlignment="Center"/>
+                            <Slider Grid.Column="1" x:Name="SilenceSlider"
+                                    Minimum="100" Maximum="800" TickFrequency="50"
+                                    IsSnapToTickEnabled="True" VerticalAlignment="Center"
+                                    ValueChanged="SilenceSlider_ValueChanged"/>
+                            <TextBlock Grid.Column="2" x:Name="SilenceLabel"
+                                       VerticalAlignment="Center" TextAlignment="Center"
+                                       Foreground="#2563EB" FontWeight="SemiBold"/>
+                        </Grid>
+                        <TextBlock Foreground="#64748B" FontSize="11" Margin="0,0,0,14"
+                                   Text="Konuşma bittikten kaç ms sonra Whisper'a gönderilsin?"/>
+
+                        <!-- Min konuşma -->
+                        <Grid Margin="0,0,0,6">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="190"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="55"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Min. Konuşma" VerticalAlignment="Center"/>
+                            <Slider Grid.Column="1" x:Name="MinSpeechSlider"
+                                    Minimum="50" Maximum="500" TickFrequency="50"
+                                    IsSnapToTickEnabled="True" VerticalAlignment="Center"
+                                    ValueChanged="MinSpeechSlider_ValueChanged"/>
+                            <TextBlock Grid.Column="2" x:Name="MinSpeechLabel"
+                                       VerticalAlignment="Center" TextAlignment="Center"
+                                       Foreground="#2563EB" FontWeight="SemiBold"/>
+                        </Grid>
+                        <TextBlock Foreground="#64748B" FontSize="11" Margin="0,0,0,14"
+                                   Text="Bu süreden kısa sesleri gürültü say ve yoksay"/>
+
+                        <!-- Max segment -->
+                        <Grid Margin="0,0,0,6">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="190"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="55"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Max. Segment" VerticalAlignment="Center"/>
+                            <Slider Grid.Column="1" x:Name="MaxSpeechSlider"
+                                    Minimum="500" Maximum="5000" TickFrequency="500"
+                                    IsSnapToTickEnabled="True" VerticalAlignment="Center"
+                                    ValueChanged="MaxSpeechSlider_ValueChanged"/>
+                            <TextBlock Grid.Column="2" x:Name="MaxSpeechLabel"
+                                       VerticalAlignment="Center" TextAlignment="Center"
+                                       Foreground="#2563EB" FontWeight="SemiBold"/>
+                        </Grid>
+                        <TextBlock Foreground="#64748B" FontSize="11" Margin="0,0,0,16"
+                                   Text="Konuşma bu kadar uzarsa zorla Whisper'a gönder"/>
+
+                        <Separator Margin="0,0,0,12"/>
+                        <TextBlock Text="Hızlı Önayarlar" FontWeight="Bold"
+                                   FontSize="13" Foreground="#1E293B" Margin="0,0,0,8"/>
+                        <WrapPanel>
+                            <Button Content="Duyarlı" Padding="10,5" Margin="0,0,8,0"
+                                    Click="PresetSensitive_Click"/>
+                            <Button Content="Dengeli (varsayılan)" Padding="10,5" Margin="0,0,8,0"
+                                    Click="PresetBalanced_Click"/>
+                            <Button Content="Seçici (gürültülü)" Padding="10,5"
+                                    Click="PresetSelective_Click"/>
+                        </WrapPanel>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- ───── TAB 4: Whisper ───── -->
+            <TabItem Header="🤖 Whisper">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="16,12">
+
+                        <TextBlock Text="EN→TR Modeli (Sistem Sesi)" FontWeight="Bold"
+                                   FontSize="13" Foreground="#1E293B" Margin="0,0,0,6"/>
+                        <ComboBox x:Name="EnModelCombo" Width="300"
+                                  HorizontalAlignment="Left" Margin="0,0,0,4">
+                            <ComboBoxItem Tag="tiny.en"  Content="tiny.en  — 39 MB · ~0.3s · hızlı"/>
+                            <ComboBoxItem Tag="base.en"  Content="base.en  — 148 MB · ~0.8s · dengeli"/>
+                            <ComboBoxItem Tag="small.en" Content="small.en — 488 MB · ~2s · kaliteli"/>
+                        </ComboBox>
+                        <TextBlock Foreground="#64748B" FontSize="11" Margin="0,0,0,16"
+                                   Text="Değiştirince 'Whisper Sıfırla' butonuna basın."/>
+
+                        <TextBlock Text="TR→EN Modeli (Mikrofon)" FontWeight="Bold"
+                                   FontSize="13" Foreground="#1E293B" Margin="0,0,0,6"/>
+                        <ComboBox x:Name="TrModelCombo" Width="300"
+                                  HorizontalAlignment="Left" Margin="0,0,0,4">
+                            <ComboBoxItem Tag="tiny"  Content="tiny  — 39 MB · hızlı"/>
+                            <ComboBoxItem Tag="base"  Content="base  — 148 MB · dengeli"/>
+                            <ComboBoxItem Tag="small" Content="small — 488 MB · kaliteli"/>
+                        </ComboBox>
+                        <TextBlock Foreground="#64748B" FontSize="11" Margin="0,0,0,16"
+                                   Text="Türkçe dahil çok dilli modeller."/>
+
+                        <Separator Margin="0,0,0,12"/>
+
+                        <!-- No-speech threshold -->
+                        <TextBlock Text="Sessizlik Filtresi (No-Speech)" FontWeight="Bold"
+                                   FontSize="13" Foreground="#1E293B" Margin="0,0,0,4"/>
+                        <Grid Margin="0,0,0,6">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="190"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="55"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Eşik" VerticalAlignment="Center"/>
+                            <Slider Grid.Column="1" x:Name="NoSpeechSlider"
+                                    Minimum="0.1" Maximum="0.9" TickFrequency="0.05"
+                                    IsSnapToTickEnabled="True" VerticalAlignment="Center"
+                                    ValueChanged="NoSpeechSlider_ValueChanged"/>
+                            <TextBlock Grid.Column="2" x:Name="NoSpeechLabel"
+                                       VerticalAlignment="Center" TextAlignment="Center"
+                                       Foreground="#2563EB" FontWeight="SemiBold"/>
+                        </Grid>
+                        <TextBlock Foreground="#64748B" FontSize="11" Margin="0,0,0,16"
+                                   Text="Düşük=her şeyi işle · Yüksek=sessiz segmentleri atla"/>
+
+                        <TextBlock Text="Sıcaklık (Temperature)" FontWeight="Bold"
+                                   FontSize="13" Foreground="#1E293B" Margin="0,0,0,6"/>
+                        <ComboBox x:Name="TempCombo" Width="280"
+                                  HorizontalAlignment="Left" Margin="0,0,0,16">
+                            <ComboBoxItem Tag="0.0" Content="0.0 — Deterministik (önerilen)"/>
+                            <ComboBoxItem Tag="0.2" Content="0.2 — Hafif varyasyon"/>
+                            <ComboBoxItem Tag="0.5" Content="0.5 — Yaratıcı"/>
+                        </ComboBox>
+
+                        <Button x:Name="ResetSttBtn"
+                                Content="Whisper Processor'ı Sıfırla"
+                                Padding="12,6" HorizontalAlignment="Left"
+                                Click="ResetSttBtn_Click"/>
+                        <TextBlock Foreground="#64748B" FontSize="11" Margin="0,6,0,0"
+                                   Text="Model veya eşik değişikliği sonrası bir sonraki segmentte yeni ayar devreye girer."/>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- ───── TAB 5: Çeviri ───── -->
+            <TabItem Header="🌐 Çeviri">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="16,12">
+
+                        <TextBlock Text="LibreTranslate Sunucu" FontWeight="Bold"
+                                   FontSize="13" Foreground="#1E293B" Margin="0,0,0,6"/>
+                        <TextBox x:Name="LibreUrlBox" Padding="8,5"
+                                 BorderBrush="#CBD5E1" BorderThickness="1"
+                                 FontSize="13" Margin="0,0,0,4"/>
+                        <TextBlock Foreground="#64748B" FontSize="11" Margin="0,0,0,16"
+                                   Text="Yerel Docker: http://localhost:5050"/>
+
+                        <Grid Margin="0,0,0,6">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="190"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="55"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Timeout" VerticalAlignment="Center"/>
+                            <Slider Grid.Column="1" x:Name="TimeoutSlider"
+                                    Minimum="3" Maximum="30" TickFrequency="1"
+                                    IsSnapToTickEnabled="True" VerticalAlignment="Center"
+                                    ValueChanged="TimeoutSlider_ValueChanged"/>
+                            <TextBlock Grid.Column="2" x:Name="TimeoutLabel"
+                                       VerticalAlignment="Center" TextAlignment="Center"
+                                       Foreground="#2563EB" FontWeight="SemiBold"/>
+                        </Grid>
+
+                        <Border Background="#F0FDF4" BorderBrush="#BBF7D0"
+                                BorderThickness="1" CornerRadius="4"
+                                Padding="10,8" Margin="0,16,0,0">
+                            <TextBlock FontSize="12" Foreground="#166534" TextWrapping="Wrap">
+                                <Run FontWeight="Bold">Docker başlatma:</Run>
+                                <LineBreak/>
+                                <Run FontFamily="Consolas">docker start libretranslate</Run>
+                            </TextBlock>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- ───── TAB 6: TTS ───── -->
+            <TabItem Header="🔈 TTS">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="16,12">
+
+                        <CheckBox x:Name="TtsEnabledCheck" Margin="0,0,0,14"
+                                  Content="TR→EN önerisini sesli oku (Windows TTS)"
+                                  Checked="TtsCheck_Changed" Unchecked="TtsCheck_Changed"/>
+
+                        <Grid Margin="0,0,0,6">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="190"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="55"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Konuşma Hızı" VerticalAlignment="Center"/>
+                            <Slider Grid.Column="1" x:Name="TtsRateSlider"
+                                    Minimum="-5" Maximum="5" TickFrequency="1"
+                                    IsSnapToTickEnabled="True" VerticalAlignment="Center"
+                                    ValueChanged="TtsRateSlider_ValueChanged"/>
+                            <TextBlock Grid.Column="2" x:Name="TtsRateLabel"
+                                       VerticalAlignment="Center" TextAlignment="Center"
+                                       Foreground="#2563EB" FontWeight="SemiBold"/>
+                        </Grid>
+                        <TextBlock Foreground="#64748B" FontSize="11" Margin="0,0,0,14"
+                                   Text="-5=çok yavaş · 0=normal · +5=çok hızlı"/>
+
+                        <Grid Margin="0,0,0,6">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="190"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="55"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Ses Düzeyi" VerticalAlignment="Center"/>
+                            <Slider Grid.Column="1" x:Name="TtsVolumeSlider"
+                                    Minimum="0" Maximum="100" TickFrequency="5"
+                                    IsSnapToTickEnabled="True" VerticalAlignment="Center"
+                                    ValueChanged="TtsVolumeSlider_ValueChanged"/>
+                            <TextBlock Grid.Column="2" x:Name="TtsVolumeLabel"
+                                       VerticalAlignment="Center" TextAlignment="Center"
+                                       Foreground="#2563EB" FontWeight="SemiBold"/>
+                        </Grid>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+        </TabControl>
+
+        <!-- Alt çubuk -->
+        <Border Grid.Row="2" Background="White"
+                BorderBrush="#E2E8F0" BorderThickness="0,1,0,0"
+                Padding="12,0">
+            <DockPanel VerticalAlignment="Center">
+                <TextBlock x:Name="StatusMsg" Foreground="#059669"
+                           FontSize="11" VerticalAlignment="Center"
+                           DockPanel.Dock="Left"/>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button Content="İptal" Width="80" Margin="0,0,10,0"
+                            IsCancel="True" Click="CancelBtn_Click"/>
+                    <Button Content="  Kaydet  " IsDefault="True"
+                            Background="#1D4ED8" Foreground="White"
+                            FontWeight="SemiBold" Padding="12,6"
+                            Click="SaveBtn_Click"/>
+                </StackPanel>
+            </DockPanel>
+        </Border>
+    </Grid>
+</Window>

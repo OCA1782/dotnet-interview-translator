@@ -1,0 +1,14 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/InterviewTranslator.Audio/InterviewTranslator.Audio.csproj" />
+    <Project Path="src/InterviewTranslator.ConsoleTest/InterviewTranslator.ConsoleTest.csproj" />
+    <Project Path="src/InterviewTranslator.OpenAI/InterviewTranslator.OpenAI.csproj" />
+    <Project Path="src/InterviewTranslator.Desktop/InterviewTranslator.Desktop.csproj" />
+    <Project Path="src/InterviewTranslator.Shared/InterviewTranslator.Shared.csproj" />
+    <Project Path="src/InterviewTranslator.Stt/InterviewTranslator.Stt.csproj" />
+    <Project Path="src/InterviewTranslator.Subtitles/InterviewTranslator.Subtitles.csproj" />
+    <Project Path="src/InterviewTranslator.Tests/InterviewTranslator.Tests.csproj" />
+    <Project Path="src/InterviewTranslator.Translate/InterviewTranslator.Translate.csproj" />
+    <Project Path="src/InterviewTranslator.Vad/InterviewTranslator.Vad.csproj" />
+  </Folder>
+</Solution>

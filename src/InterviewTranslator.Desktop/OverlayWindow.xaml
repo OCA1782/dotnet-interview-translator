@@ -1,0 +1,79 @@
+<Window x:Class="InterviewTranslator.Desktop.OverlayWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="IT Overlay"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        Topmost="True"
+        ShowInTaskbar="False"
+        ResizeMode="CanResizeWithGrip"
+        MinWidth="400" MinHeight="120"
+        Width="960" Height="280"
+        WindowStartupLocation="Manual">
+
+    <Grid>
+        <Border CornerRadius="12" Margin="4" Cursor="SizeAll">
+            <Border.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                    <GradientStop Color="#F00F172A" Offset="0"/>
+                    <GradientStop Color="#EC0F172A" Offset="1"/>
+                </LinearGradientBrush>
+            </Border.Background>
+            <Border.Effect>
+                <DropShadowEffect Color="Black" BlurRadius="28" ShadowDepth="6" Opacity="0.6"/>
+            </Border.Effect>
+
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="5"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <!-- Top color bar -->
+                <Border Grid.Row="0" CornerRadius="12,12,0,0">
+                    <Border.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                            <GradientStop Color="#1D4ED8" Offset="0"/>
+                            <GradientStop Color="#0EA5E9" Offset="1"/>
+                        </LinearGradientBrush>
+                    </Border.Background>
+                </Border>
+
+                <!-- Header -->
+                <StackPanel Grid.Row="1" Orientation="Horizontal"
+                            Margin="16,8,16,4" VerticalAlignment="Center">
+                    <Border Background="#1E40AF" CornerRadius="5" Padding="8,3">
+                        <TextBlock Text="EN → TR" FontSize="11" FontWeight="Bold"
+                                   Foreground="#BAE6FD" FontFamily="Consolas"/>
+                    </Border>
+                    <TextBlock Text="Sistem Sesi" FontSize="10" Foreground="#475569"
+                               VerticalAlignment="Center" Margin="10,0,0,0"/>
+                </StackPanel>
+
+                <!-- Transcript: English (white, bold) + Turkish (blue, italic) accumulated -->
+                <ScrollViewer x:Name="TranscriptScroller"
+                              Grid.Row="2"
+                              VerticalScrollBarVisibility="Auto"
+                              HorizontalScrollBarVisibility="Disabled"
+                              Margin="16,4,16,10">
+                    <TextBlock x:Name="TranscriptText"
+                               TextWrapping="Wrap"
+                               LineHeight="22">
+                        <TextBlock.Effect>
+                            <DropShadowEffect Color="Black" BlurRadius="8" ShadowDepth="2" Opacity="0.8"/>
+                        </TextBlock.Effect>
+                    </TextBlock>
+                </ScrollViewer>
+            </Grid>
+        </Border>
+
+        <Border HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                Width="18" Height="18" Cursor="SizeNWSE" Margin="0,0,6,6"
+                Opacity="0.4">
+            <TextBlock Text="⠿" Foreground="White" FontSize="14"
+                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        </Border>
+    </Grid>
+</Window>

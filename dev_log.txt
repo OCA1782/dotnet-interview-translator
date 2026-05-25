@@ -1,0 +1,182 @@
+InterviewTranslator — Geliştirme Logu
+======================================
+Proje: Canlı Çeviri ve Yanıt Destek Uygulaması
+Kaynak Doküman: DOCUMENTS/CEVIRI/canli_ceviri_uygulamasi_surec_ve_teknik_analiz.pdf
+
+==============================================================================
+[2026-05-22] BAŞLANGIÇ — Solution ve proje yapısı oluşturuldu
+==============================================================================
+YAPILAN:
+  - C:\PROJECTS\DOTNET\InterviewTranslator klasörü oluşturuldu
+  - .NET 8 WPF solution: InterviewTranslator.sln
+  - 7 proje oluşturuldu:
+      * InterviewTranslator.Shared       — DTO'lar, interface'ler, options
+      * InterviewTranslator.Audio        — WASAPI Loopback ses yakalama (NAudio)
+      * InterviewTranslator.Vad          — Energy-based konuşma/sessizlik algılama
+      * InterviewTranslator.Stt          — whisper.cpp STT (Whisper.net)
+      * InterviewTranslator.Translate    — LibreTranslate HTTP + GlossaryService
+      * InterviewTranslator.Subtitles    — SubtitleBuffer, SubtitlePublisher
+      * InterviewTranslator.Desktop      — WPF MainWindow + OverlayWindow + Orchestrator
+
+PAKETLER:
+  - NAudio 2.2.1 (ses yakalama)
+  - Whisper.net 1.7.2 + Whisper.net.Runtime 1.7.2 (STT)
+  - Microsoft.Extensions.Hosting 8.0.1 (DI/Host)
+  - Serilog (Console + File sink) — logs/app-*.log
+  - Microsoft.Extensions.DependencyInjection/Logging/Options/Http 8.x
+
+DURUM: Build başarılı — 0 error, 0 warning
+
+SONRAKI ADIMLAR:
+  - [ ] FAZ 0: Konsol doğrulama testi — sistem sesinden WAV al, STT + çeviri dene
+  - [ ] LibreTranslate Docker kurulumu (workers/libretranslate)
+  - [ ] whisper.cpp model indirme script'i (workers/models)
+  - [ ] OverlayWindow ekran pozisyonunu dinamik hesapla (ekran yüksekliğine göre)
+  - [ ] Hotkey global (F1/F2/F3) low-level keyboard hook ile kaydet
+  - [ ] Unit test projesi ekle (xUnit)
+  - [ ] FAZ 2: Overlay UX iyileştirme — font/opaklık ayarı paneli
+  - [ ] FAZ 3: GlossaryService genişletme + context buffer
+  - [ ] FAZ 4: Hazır cevap kartları paneli
+  - [ ] FAZ 5: TR → EN iki yönlü çeviri modu
+
+==============================================================================
+[2026-05-22] DEVAM — FAZ 0 + Global Hotkey + Test + Glossary
+==============================================================================
+YAPILAN:
+  - FAZ 0 Konsol Test Projesi (InterviewTranslator.ConsoleTest)
+      * Tam pipeline testi: ses → VAD → STT → çeviri → konsol çıktısı
+      * Cihaz seçimi, renk-kodlu çıktı, gecikme ölçümü
+      * `dotnet run --project src/InterviewTranslator.ConsoleTest` ile çalışır
+  - Global Hotkey (GlobalHotkeyService)
+      * Win32 SetWindowsHookEx low-level keyboard hook
+      * Uygulama arka planda iken de F1/F2/F3 çalışır
+      * F1: Başlat | F2: Durdur | F3: Overlay gizle/göster
+  - OverlayWindow ekran pozisyonu
+      * WPF SystemParameters ile DPI-aware hesaplama
+      * Ekranın alt %12 bölgesinde, yatay ortalanmış
+  - xUnit Test Projesi (InterviewTranslator.Tests) — 19/19 PASSED
+      * GlossaryServiceTests    (7 test)
+      * SubtitleBufferTests     (6 test — thread-safety dahil)
+      * EnergyVadTests          (4 test — sinyal simülasyonu ile)
+  - GlossaryService genişletildi: 20 → 130+ teknik terim
+      * 9 kategori: Mimari, DevOps, Container, Cloud, Dev, API, Data, Perf, Agile
+      * Uzun terimler önce işlenir (çakışma önleme)
+      * docs/glossary.md ile belgelenmiş
+
+BUILD: ✅ 0 error | TEST: ✅ 19/19 passed
+
+SONRAKI ADIMLAR:
+  - [ ] LibreTranslate Docker başlatma (`scripts/setup-libretranslate.ps1`)
+  - [ ] Whisper model indirme (`scripts/setup-whisper.ps1`)
+  - [ ] FAZ 0 konsol testi çalıştır, gecikme ölç
+  - [ ] FAZ 5: TR → EN iki yönlü çeviri (mikrofon + TTS)
+
+==============================================================================
+[2026-05-22] DEVAM — FAZ 2/3/4 tamamlandı
+==============================================================================
+YAPILAN:
+  - FAZ 2: SettingsWindow (Overlay ayar paneli)
+      * Font boyutu slider (12-36), Opaklık slider (30-100%)
+      * İngilizce göster/gizle toggle, Compact mod
+      * Overlay pozisyonu sıfırlama butonu
+      * Kaydet → appsettings.json'a yazar, Overlay'i anında günceller
+      * F5 tuşu ile açılır (global hotkey)
+  - FAZ 2: AppOptionsAccessor — DI dışından ayarlara erişim
+  - FAZ 3: TranslationContextBuffer
+      * Son 3 segmentin bağlamını çeviriye prefix olarak ekler
+      * Jaccard token benzerliği (%90+) ile duplicate segment filtreler
+      * LibreTranslateService'e entegre edildi
+  - FAZ 4: AnswerCardsWindow (Hazır Cevap Kartları)
+      * 28 kart: Teknik (15), Behavioral (7), Genel (6) kategori
+      * Canlı arama, kategori sekmeleri, önizleme
+      * Çift tıkla veya butonla panoya kopyalama
+      * Ekranın sağ üst köşesine konumlanır (overlay ile çakışmaz)
+      * F4 tuşu ile açılır, Topmost=True
+  - Hotkey genişletildi: F4 (Cevap Kartları) + F5 (Ayarlar)
+
+BUILD: ✅ 0 error, 0 warning | TEST: ✅ 19/19 passed
+
+==============================================================================
+[2026-05-22] FAZ 5 TAMAMLANDI — Çift Yönlü Çeviri (TR→EN)
+==============================================================================
+YAPILAN:
+
+  MicrophoneCaptureService (InterviewTranslator.Audio):
+    - IMicrophoneCaptureService interface tanımlandı
+    - WaveInEvent ile mikrofon yakalama (16kHz/16bit/mono, BufferMs=50)
+    - GetInputDevices() — WASAPI Capture endpoint listesi
+    - SetDevice() — runtime cihaz değiştirme
+    - AudioExtensions.cs güncellendi: IMicrophoneCaptureService DI kaydı
+
+  MicWhisperSttEngine (InterviewTranslator.Stt):
+    - AppOptions.MicStt kullanır (ggml-base.bin, language="tr")
+    - Yoksa model otomatik indirilir (GgmlType.Base — çok dilli)
+    - SttExtensions.cs güncellendi: singleton kaydı
+
+  SuggestionBuffer + SuggestionPublisher (InterviewTranslator.Subtitles):
+    - ISuggestionPublisher interface + SuggestionItem DTO (Shared)
+    - SuggestionBuffer: son 3 öneriyi tutar, Changed event
+    - SuggestionPublisher: ISuggestionPublisher impl
+    - SubtitleExtensions.cs güncellendi: her ikisi de DI'ya eklendi
+
+  BidirectionalOrchestrator (InterviewTranslator.Desktop):
+    - Pipeline: IMicrophoneCaptureService → IVadService → MicWhisperSttEngine → TR→EN HTTP → ISuggestionPublisher
+    - Named HttpClient "reverse" — ReverseTranslation options (LibreTranslateUrl, tr→en)
+    - Her segment bağımsız Task.Run ile paralel işlenir
+
+  SuggestionOverlayWindow (InterviewTranslator.Desktop):
+    - Sol üst köşe (Left=20, Top=80), kırmızı çerçeve, saydam koyu arka plan
+    - Türkçe kaynak metin + İngilizce öneri ayrı TextBlock
+    - SuggestionBuffer.Changed event ile anlık güncelleme
+    - Sürüklenebilir (MouseLeftButtonDown → DragMove)
+    - F6 ile görünürlük toggle
+
+  MainWindow güncellendi:
+    - Mikrofon cihaz seçici combo (MicCombo)
+    - "Mic (TR)" başlat / "Mic Dur" durdur butonları
+    - BidirectionalOrchestrator ve SuggestionOverlayWindow bağlandı
+    - F6 hotkey: SuggestionOverlay toggle
+    - Pencere yüksekliği 340 → 420px
+
+  App.xaml.cs güncellendi:
+    - BidirectionalOrchestrator ve SuggestionOverlayWindow DI'ya eklendi
+    - Named HttpClient "reverse" kayıt edildi
+
+BUILD: ✅ 0 error, 0 warning | TEST: ✅ 19/19 passed
+
+==============================================================================
+[2026-05-23] TTS + Bağlantı Durumu + Test
+==============================================================================
+YAPILAN:
+
+  WindowsTtsService (InterviewTranslator.Desktop):
+    - System.Speech.Synthesis ile EN önerilerini sesli okur
+    - ITtsService interface (Shared.Contracts)
+    - TtsOptions: Enabled, Rate (-10…+10), Volume (0–100) — AppOptions'a eklendi
+    - SuggestionOverlayWindow entegrasyonu: yeni öneri gelince Speak() çağrılır
+    - Paket: System.Speech 8.0.0
+
+  SettingsWindow güncellendi:
+    - TTS toggle checkbox (Sesli Okuma)
+    - Konuşma hızı slider (-5…+5, TTS kapalıyken disable)
+    - appsettings.json'a Tts bölümü persist edilir
+    - Pencere yüksekliği 380 → 480px
+
+  ConnectionStatusService (InterviewTranslator.Desktop):
+    - Her 5 saniyede LibreTranslate /languages endpoint'ini ping eder
+    - PeriodicTimer + HttpClient (timeout 3s), hiç NuGet eklemeden
+    - MainWindow status bar'ı: yeşil/kırmızı Ellipse + "LibreTranslate ✓/✗" label
+    - OnClosed'da Dispose edilir
+
+  SuggestionBufferTests (InterviewTranslator.Tests):
+    - 7 yeni xUnit testi: Add, kapasite aşımı, Clear, Changed event x2, thread-safety, boş buffer
+
+BUILD: ✅ 0 error | TEST: ✅ 26/26 passed (19 → 26)
+
+SONRAKI ADIMLAR:
+  - [ ] LibreTranslate Docker başlatma (`scripts/setup-libretranslate.ps1`)
+  - [ ] Whisper model indirme (`scripts/setup-whisper.ps1`)
+  - [ ] Opsiyonel: VAD threshold slider UI kalibrasyonu
+  - [ ] Opsiyonel: TTS ses seçimi (SpeechSynthesizer.GetInstalledVoices)
+
+==============================================================================

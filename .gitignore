@@ -1,0 +1,36 @@
+# Build outputs
+bin/
+obj/
+
+# Publish output
+publish/
+
+# Logs
+logs/
+
+# Whisper model binaries (large files — download at runtime)
+workers/models/*.bin
+workers/models/*.gguf
+
+# LibreTranslate runtime data
+workers/libretranslate/
+
+# User secrets / local overrides
+appsettings.local.json
+appsettings.*.local.json
+secrets.json
+
+# IDE / OS
+.vs/
+.vscode/
+*.user
+*.suo
+.DS_Store
+Thumbs.db
+
+# Rider
+.idea/
+
+# NuGet
+*.nupkg
+.nuget/
