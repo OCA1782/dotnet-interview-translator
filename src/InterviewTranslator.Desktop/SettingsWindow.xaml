@@ -382,6 +382,91 @@
                 </ScrollViewer>
             </TabItem>
 
+            <!-- ───── TAB 7: OpenAI ───── -->
+            <TabItem Header="✨ OpenAI">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="16,12">
+
+                        <Border Background="#FFF7ED" BorderBrush="#FED7AA"
+                                BorderThickness="1" CornerRadius="4"
+                                Padding="10,8" Margin="0,0,0,14">
+                            <TextBlock FontSize="12" Foreground="#92400E" TextWrapping="Wrap">
+                                <Run FontWeight="Bold">⚠  Gizlilik:</Run>
+                                <Run>OpenAI modu etkinken transkripsiyon ve çeviri metni bulut API'ye gönderilir.</Run>
+                            </TextBlock>
+                        </Border>
+
+                        <TextBlock Text="Çalışma Modu" FontWeight="Bold"
+                                   FontSize="13" Foreground="#1E293B" Margin="0,0,0,6"/>
+                        <ComboBox x:Name="OpenAIModeCombo" Width="320" HorizontalAlignment="Left"
+                                  Margin="0,0,0,4"
+                                  SelectionChanged="OpenAIModeCombo_SelectionChanged">
+                            <ComboBoxItem Tag="Disabled"      Content="Devre Dışı — OpenAI kullanılmaz"/>
+                            <ComboBoxItem Tag="AssistantOnly" Content="Asistan Modu — Soru analizi + cevap önerisi"/>
+                            <ComboBoxItem Tag="HybridSTT"     Content="Hybrid STT — OpenAI Realtime transkripsiyon"/>
+                            <ComboBoxItem Tag="FullCloud"     Content="Tam Bulut — Uçtan uca OpenAI"/>
+                        </ComboBox>
+                        <TextBlock Foreground="#64748B" FontSize="11" Margin="0,0,0,16"
+                                   Text="Asistan Modu: STT+çeviri lokal kalır, yalnızca soru analizi API'ye gider."/>
+
+                        <TextBlock Text="API Anahtarı" FontWeight="Bold"
+                                   FontSize="13" Foreground="#1E293B" Margin="0,0,0,6"/>
+                        <PasswordBox x:Name="ApiKeyBox" Padding="8,5"
+                                     BorderBrush="#CBD5E1" BorderThickness="1"
+                                     FontSize="13" Margin="0,0,0,4"/>
+                        <TextBlock Foreground="#64748B" FontSize="11" Margin="0,0,0,16"
+                                   Text="sk-proj-... formatında. Yalnızca yerel çalışma klasörüne kaydedilir."/>
+
+                        <TextBlock Text="Asistan Modeli" FontWeight="Bold"
+                                   FontSize="13" Foreground="#1E293B" Margin="0,0,0,6"/>
+                        <ComboBox x:Name="AssistantModelCombo" Width="320" HorizontalAlignment="Left"
+                                  Margin="0,0,0,16">
+                            <ComboBoxItem Tag="gpt-4o-mini" Content="gpt-4o-mini — Hızlı, düşük maliyet (önerilen)"/>
+                            <ComboBoxItem Tag="gpt-4o"      Content="gpt-4o — Yüksek kalite"/>
+                        </ComboBox>
+
+                        <Grid Margin="0,0,0,6">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="190"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="55"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Max Token" VerticalAlignment="Center"/>
+                            <Slider Grid.Column="1" x:Name="MaxTokensSlider"
+                                    Minimum="100" Maximum="600" TickFrequency="50"
+                                    IsSnapToTickEnabled="True" VerticalAlignment="Center"
+                                    ValueChanged="MaxTokensSlider_ValueChanged"/>
+                            <TextBlock Grid.Column="2" x:Name="MaxTokensLabel"
+                                       VerticalAlignment="Center" TextAlignment="Center"
+                                       Foreground="#2563EB" FontWeight="SemiBold"/>
+                        </Grid>
+                        <TextBlock Foreground="#64748B" FontSize="11" Margin="0,0,0,14"
+                                   Text="Yanıt uzunluğu sınırı. Daha yüksek = daha yavaş + pahalı."/>
+
+                        <Grid Margin="0,0,0,6">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="190"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="55"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Zaman Aşımı" VerticalAlignment="Center"/>
+                            <Slider Grid.Column="1" x:Name="OpenAITimeoutSlider"
+                                    Minimum="3" Maximum="30" TickFrequency="1"
+                                    IsSnapToTickEnabled="True" VerticalAlignment="Center"
+                                    ValueChanged="OpenAITimeoutSlider_ValueChanged"/>
+                            <TextBlock Grid.Column="2" x:Name="OpenAITimeoutLabel"
+                                       VerticalAlignment="Center" TextAlignment="Center"
+                                       Foreground="#2563EB" FontWeight="SemiBold"/>
+                        </Grid>
+                        <TextBlock Foreground="#64748B" FontSize="11" Margin="0,0,0,14"
+                                   Text="API yanıt bekleme süresi (saniye)"/>
+
+                        <CheckBox x:Name="ShowCloudWarningCheck" Margin="0,4,0,0"
+                                  Content="OpenAI modu etkinken bulut uyarısı göster"/>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
         </TabControl>
 
         <!-- Alt çubuk -->

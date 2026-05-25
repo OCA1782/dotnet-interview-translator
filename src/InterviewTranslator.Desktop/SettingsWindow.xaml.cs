@@ -24,6 +24,7 @@ public partial class SettingsWindow : Window
     private readonly SttOptions             _sttTrOpts;
     private readonly TranslationOptions     _transOpts;
     private readonly TtsOptions             _ttsOpts;
+    private readonly OpenAIOptions          _openAiOpts;
 
     public SettingsWindow(
         IOptions<AppOptions> options,
@@ -43,6 +44,7 @@ public partial class SettingsWindow : Window
         _sttTrOpts   = o.MicStt;
         _transOpts   = o.Translation;
         _ttsOpts     = o.Tts;
+        _openAiOpts  = o.OpenAI;
         _overlay     = overlay;
         _tts         = (WindowsTtsService)tts;
         _sttEn       = sttEn;
@@ -86,6 +88,15 @@ public partial class SettingsWindow : Window
         TtsVolumeSlider.Value     = _ttsOpts.Volume;
         TtsRateSlider.IsEnabled   = _ttsOpts.Enabled;
         TtsVolumeSlider.IsEnabled = _ttsOpts.Enabled;
+
+        // ── OpenAI ──
+        SelectComboByTag(OpenAIModeCombo, _openAiOpts.Mode.ToString());
+        ApiKeyBox.Password = _openAiOpts.ApiKey;
+        SelectComboByTag(AssistantModelCombo, _openAiOpts.AssistantModel);
+        MaxTokensSlider.Value         = _openAiOpts.MaxTokens;
+        OpenAITimeoutSlider.Value     = _openAiOpts.TimeoutSeconds;
+        ShowCloudWarningCheck.IsChecked = _openAiOpts.ShowCloudWarning;
+        UpdateOpenAIControlState();
     }
 
     // ──────────────── Görünüm handlers ────────────────
@@ -199,6 +210,28 @@ public partial class SettingsWindow : Window
         TtsVolumeSlider.IsEnabled = en;
     }
 
+    // ──────────────── OpenAI handlers ────────────────
+
+    private void OpenAIModeCombo_SelectionChanged(object s, SelectionChangedEventArgs e)
+        => UpdateOpenAIControlState();
+
+    private void MaxTokensSlider_ValueChanged(object s, RoutedPropertyChangedEventArgs<double> e)
+    { if (MaxTokensLabel is not null) MaxTokensLabel.Text = ((int)e.NewValue).ToString(); }
+
+    private void OpenAITimeoutSlider_ValueChanged(object s, RoutedPropertyChangedEventArgs<double> e)
+    { if (OpenAITimeoutLabel is not null) OpenAITimeoutLabel.Text = $"{(int)e.NewValue}s"; }
+
+    private void UpdateOpenAIControlState()
+    {
+        if (OpenAIModeCombo is null) return;
+        var tag = (OpenAIModeCombo.SelectedItem as ComboBoxItem)?.Tag?.ToString() ?? "Disabled";
+        bool active = tag != "Disabled";
+        if (ApiKeyBox          is not null) ApiKeyBox.IsEnabled          = active;
+        if (AssistantModelCombo is not null) AssistantModelCombo.IsEnabled = active;
+        if (MaxTokensSlider    is not null) MaxTokensSlider.IsEnabled    = active;
+        if (OpenAITimeoutSlider is not null) OpenAITimeoutSlider.IsEnabled = active;
+    }
+
     // ──────────────── Save / Cancel ────────────────
 
     private void SaveBtn_Click(object s, RoutedEventArgs e)
@@ -231,6 +264,15 @@ public partial class SettingsWindow : Window
         _ttsOpts.Rate    = (int)TtsRateSlider.Value;
         _ttsOpts.Volume  = (int)TtsVolumeSlider.Value;
         _tts.ApplyOptions();
+
+        // OpenAI
+        var modeTag = (OpenAIModeCombo.SelectedItem as ComboBoxItem)?.Tag?.ToString() ?? "Disabled";
+        _openAiOpts.Mode           = Enum.Parse<OpenAIMode>(modeTag);
+        _openAiOpts.ApiKey         = ApiKeyBox.Password;
+        _openAiOpts.AssistantModel = (AssistantModelCombo.SelectedItem as ComboBoxItem)?.Tag?.ToString() ?? "gpt-4o-mini";
+        _openAiOpts.MaxTokens      = (int)MaxTokensSlider.Value;
+        _openAiOpts.TimeoutSeconds = (int)OpenAITimeoutSlider.Value;
+        _openAiOpts.ShowCloudWarning = ShowCloudWarningCheck.IsChecked == true;
 
         _overlay.ApplyCurrentOptions();
         PersistToAppSettings();
@@ -339,6 +381,16 @@ public partial class SettingsWindow : Window
                 n["Enabled"] = opts.Tts.Enabled;
                 n["Rate"]    = opts.Tts.Rate;
                 n["Volume"]  = opts.Tts.Volume;
+            });
+
+            Set(app, "OpenAI",           n =>
+            {
+                n["ApiKey"]          = opts.OpenAI.ApiKey;
+                n["Mode"]            = opts.OpenAI.Mode.ToString();
+                n["AssistantModel"]  = opts.OpenAI.AssistantModel;
+                n["MaxTokens"]       = opts.OpenAI.MaxTokens;
+                n["TimeoutSeconds"]  = opts.OpenAI.TimeoutSeconds;
+                n["ShowCloudWarning"] = opts.OpenAI.ShowCloudWarning;
             });
 
             File.WriteAllText(path,
