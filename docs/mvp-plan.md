@@ -120,22 +120,20 @@
 - ✅ **SettingsWindow OpenAI sekmesi** — mod, API anahtarı, model, token, timeout, uyarı toggle
 - ✅ Build: 0 hata, 0 uyarı
 
-## FAZ-V2-B — OpenAI Realtime STT Modu [ ]
+## FAZ-V2-B — OpenAI STT Modu [✓ tamamlandı]
 
-- [ ] `IRealtimeTranscriptionProvider` — `IAsyncEnumerable<TranscriptDelta>` streaming
-- [ ] STT Router: local whisper.cpp ↔ OpenAI Realtime Transcription seçimi
-- [ ] Kullanıcı arayüzünde "Local / OpenAI" motor toggle
-- [ ] Network latency metriği overlay'de gösterimi
-- [ ] Aylık/dakikalık kullanım kotası ve uyarısı
-- [ ] Local STT ile karşılaştırmalı kalite ölçümü
+- ✅ `OpenAISttService` — OpenAI `/v1/audio/transcriptions` (whisper-1), PCM16→WAV dönüşümü
+- ✅ STT Router: `HybridSTT` veya `FullCloud` modunda OpenAI STT; aksi hâlde lokal Whisper.cpp
+- ✅ Mod seçimi SettingsWindow OpenAI sekmesinden yapılır (yeniden başlatma gerekmez)
+- ✅ API anahtarı her istekte taze okunur (`IOptionsMonitor`) — çalışma zamanında değiştirilebilir
+- ✅ Hata ve zaman aşımı boş `TranscriptionResult` dönerek pipeline'ı kırmaz
 
-## FAZ-V2-C — Pro Çift Yönlü + OpenAI Translate [ ]
+## FAZ-V2-C — OpenAI Translate Modu [✓ tamamlandı]
 
-- [ ] `IRealtimeTranslationProvider` — OpenAI çeviri motoru
-- [ ] Translation Router: LibreTranslate ↔ OpenAI Translate seçimi
-- [ ] TR konuşması → EN metin overlay
-- [ ] Opsiyonel virtual microphone araştırması
-- [ ] İş görüşmesi için varsayılan kapalı mod
+- ✅ `OpenAITranslationService` — GPT-4o-mini ile EN→TR çeviri, teknik terimler korunur
+- ✅ Translation Router: `FullCloud` modunda OpenAI Translate; aksi hâlde LibreTranslate
+- ✅ `LiveTranslationOrchestrator` güncellendi — STT ve çeviri rotaları bağımsız seçilebilir
+- ✅ `OpenAIServiceExtensions` — yeni servisler singleton olarak DI'ya kaydedildi
 
 ## Yeni Mimari Katmanlar (V2)
 

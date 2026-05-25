@@ -1,3 +1,4 @@
+using InterviewTranslator.OpenAI;
 using InterviewTranslator.Shared.Contracts;
 using InterviewTranslator.Shared.Models;
 using InterviewTranslator.Shared.Options;
@@ -10,8 +11,10 @@ public sealed class LiveTranslationOrchestrator
 {
     private readonly IAudioCaptureService _audio;
     private readonly IVadService _vad;
-    private readonly ISttEngine _stt;
-    private readonly ITranslationService _translation;
+    private readonly ISttEngine _localStt;
+    private readonly ITranslationService _localTranslation;
+    private readonly OpenAISttService _openAiStt;
+    private readonly OpenAITranslationService _openAiTranslation;
     private readonly ISubtitlePublisher _subtitlePublisher;
     private readonly IInterviewAssistantProvider _assistant;
     private readonly IOptionsMonitor<AppOptions> _appOptions;
@@ -22,19 +25,23 @@ public sealed class LiveTranslationOrchestrator
         IVadService vad,
         ISttEngine stt,
         ITranslationService translation,
+        OpenAISttService openAiStt,
+        OpenAITranslationService openAiTranslation,
         ISubtitlePublisher subtitlePublisher,
         IInterviewAssistantProvider assistant,
         IOptionsMonitor<AppOptions> appOptions,
         ILogger<LiveTranslationOrchestrator> logger)
     {
-        _audio = audio;
-        _vad = vad;
-        _stt = stt;
-        _translation = translation;
+        _audio             = audio;
+        _vad               = vad;
+        _localStt          = stt;
+        _localTranslation  = translation;
+        _openAiStt         = openAiStt;
+        _openAiTranslation = openAiTranslation;
         _subtitlePublisher = subtitlePublisher;
-        _assistant = assistant;
-        _appOptions = appOptions;
-        _logger = logger;
+        _assistant         = assistant;
+        _appOptions        = appOptions;
+        _logger            = logger;
     }
 
     public async Task StartAsync(CancellationToken cancellationToken)
@@ -69,11 +76,21 @@ public sealed class LiveTranslationOrchestrator
     {
         try
         {
-            // Adım 1: Whisper STT → hemen İngilizce göster
-            var transcript = await _stt.TranscribeAsync(segment, ct);
+            var openAiOpts = _appOptions.CurrentValue.OpenAI;
+            bool useCloudStt = openAiOpts.Mode is OpenAIMode.HybridSTT or OpenAIMode.FullCloud
+                               && !string.IsNullOrWhiteSpace(openAiOpts.ApiKey);
+            bool useCloudTranslation = openAiOpts.Mode == OpenAIMode.FullCloud
+                                       && !string.IsNullOrWhiteSpace(openAiOpts.ApiKey);
+
+            // Adım 1: STT (lokal Whisper veya OpenAI Whisper)
+            var transcript = useCloudStt
+                ? await _openAiStt.TranscribeAsync(segment, ct)
+                : await _localStt.TranscribeAsync(segment, ct);
+
             if (string.IsNullOrWhiteSpace(transcript.Text)) return;
 
-            _logger.LogInformation("STT [EN]: {Text}", transcript.Text);
+            var sttSource = useCloudStt ? "OpenAI" : "EN";
+            _logger.LogInformation("STT [{Src}]: {Text}", sttSource, transcript.Text);
 
             // İngilizce hemen yayınla (Türkçe bekleme olmadan)
             await _subtitlePublisher.PublishAsync(new SubtitleItem
@@ -85,8 +102,11 @@ public sealed class LiveTranslationOrchestrator
                 Latency     = DateTimeOffset.UtcNow - segment.StartedAt
             }, ct);
 
-            // Adım 2: LibreTranslate → Türkçe çeviriyi güncelle
-            var translation = await _translation.TranslateAsync(transcript, ct);
+            // Adım 2: Çeviri (LibreTranslate veya OpenAI GPT)
+            var translation = useCloudTranslation
+                ? await _openAiTranslation.TranslateAsync(transcript, ct)
+                : await _localTranslation.TranslateAsync(transcript, ct);
+
             if (string.IsNullOrWhiteSpace(translation.TranslatedText)
                 || translation.TranslatedText == transcript.Text)
                 return;

@@ -18,6 +18,8 @@ public static class OpenAIServiceExtensions
 
         services.AddSingleton<OpenAIAssistantProvider>();
         services.AddSingleton<NullAssistantProvider>();
+        services.AddSingleton<OpenAISttService>();
+        services.AddSingleton<OpenAITranslationService>();
 
         services.AddSingleton<IInterviewAssistantProvider>(sp =>
         {
